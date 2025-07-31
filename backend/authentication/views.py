@@ -62,9 +62,10 @@ class UserRegistrationView(generics.CreateAPIView):
         # Create user session
         UserSession.objects.create(
             user=user,
-            device_info=request.META.get('HTTP_USER_AGENT', ''),
+            session_key=request.session.session_key or 'api_session',
             ip_address=self.get_client_ip(request),
-            location='Unknown'  # You can integrate with IP geolocation service
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+            device_type=self.get_device_info(request)
         )
         
         return Response({
@@ -108,9 +109,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 # Create or update user session
                 session, created = UserSession.objects.get_or_create(
                     user=user,
-                    device_info=request.META.get('HTTP_USER_AGENT', ''),
+                    device_type=request.META.get('HTTP_USER_AGENT', ''),
                     defaults={
+                        'session_key': 'api_session',
                         'ip_address': self.get_client_ip(request),
+                        'user_agent': request.META.get('HTTP_USER_AGENT', ''),
                         'location': 'Unknown'
                     }
                 )
