@@ -1,0 +1,6 @@
+# Ignore Python artifacts within backend/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
